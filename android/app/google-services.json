@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "863635089213",
+    "project_id": "e-workforce",
+    "storage_bucket": "e-workforce.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:863635089213:android:871c66f27e4c37a70cc754",
+        "android_client_info": {
+          "package_name": "com.eworkforce.payroll.employee"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMzGRIMvGX-2FpxxR2ZtIp2c5tXoMNzOg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

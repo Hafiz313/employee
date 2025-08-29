@@ -1,0 +1,6 @@
+${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh
+${BUILT_PRODUCTS_DIR}/connectivity_plus/connectivity_plus.framework
+${BUILT_PRODUCTS_DIR}/fluttertoast/fluttertoast.framework
+${BUILT_PRODUCTS_DIR}/local_auth_darwin/local_auth_darwin.framework
+${BUILT_PRODUCTS_DIR}/open_file_ios/open_file_ios.framework
+${BUILT_PRODUCTS_DIR}/path_provider_foundation/path_provider_foundation.framework
