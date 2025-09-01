@@ -20,6 +20,7 @@ import '../../../../utils/helper.dart';
 import '../../../../utils/localStorage/storage_consts.dart';
 import '../../../../utils/localStorage/storage_service.dart';
 import '../../../home/controller/home_controller.dart';
+import '../../../home/controller/switch_company_controller.dart';
 import '../../../home/home_view.dart';
 import '../login_view.dart';
 
@@ -218,6 +219,10 @@ class LoginController extends GetxController {
                 .saveData(StorageConsts.kAccessToken, accessToken.toString());
             savePassword();
             afterLoginInfoApi(context);
+            
+            // Check company count for switch company feature
+
+            
             Navigator.of(context).pushNamedAndRemoveUntil(
               HomeView.routeName,
               (Route<dynamic> route) => false,
@@ -305,8 +310,8 @@ class LoginController extends GetxController {
       homeController.isMultiJob.value = true;
 
       // Cancel timer if running
-      if (homeController.timer.isActive) {
-        homeController.timer.cancel();
+      if (homeController.timer?.isActive == true) {
+        homeController.timer?.cancel();
       }
     } catch (e) {
       // HomeController might not be initialized, ignore error

@@ -14,13 +14,17 @@ import '../../../utils/helper.dart';
 import '../../../utils/localStorage/storage_consts.dart';
 import '../../../utils/localStorage/storage_service.dart';
 import '../../../consts/colors.dart';
+import 'home_controller.dart';
 
 class SwitchCompanyController extends GetxController {
-  Rx<CompanyListModel?> companyList = Rx<CompanyListModel?>(null);
+  Rx<CompanyListModel?> companyList = CompanyListModel(result: []).obs;
   RxBool isLoading = false.obs;
 
+
+
   Future<void> getCompanyList(
-    BuildContext context,
+    BuildContext context,{
+    bool isShowDialog=true}
   ) async {
     isLoading.value = true;
 
@@ -33,10 +37,12 @@ class SwitchCompanyController extends GetxController {
     var helper = ApiProvider(context, url, {});
     await helper.getApiData2().then(
       (res) async {
-        debugPrint("===== getCompanyListApi.value : -- ${res}=====");
+        debugPrint("===== getCompanyListApi.value (${companyList.value!.result!.length < 2}) : -- ${res}=====");
         if (!isNullString(res)) {
           try {
             companyList.value = CompanyListModel.fromJson(jsonDecode(res));
+
+            if (isShowDialog) {
             if (companyList.value?.success == true &&
                 companyList.value?.result != null &&
                 companyList.value!.result!.isNotEmpty) {
@@ -47,12 +53,14 @@ class SwitchCompanyController extends GetxController {
                 msg: 'No companies available to switch to.',
               ).show(context);
             }
+          }
           } catch (e) {
             debugPrint("Error parsing company list: $e");
+            if (isShowDialog) {
             await CustomDialog(
               stylishDialogType: StylishDialogType.ERROR,
               msg: 'Error loading company list.',
-            ).show(context);
+            ).show(context);}
           }
         } else {
           await CustomDialog(
@@ -261,9 +269,23 @@ class SwitchCompanyController extends GetxController {
                               child: ElevatedButton(
                                 onPressed: selectedUserId != null
                                     ? () {
-                                        Navigator.of(context).pop();
-                                        switchCompanyByUserId(context,
-                                            userID: selectedUserId.toString());
+                                        // Check if selected company is the same as current company
+                                        String currentUserId = StorageService().getData(StorageConsts.kUserId).toString();
+                                        if (selectedUserId.toString() == currentUserId) {
+                                          Navigator.of(context).pop();
+                                          Get.snackbar(
+                                            'Info',
+                                            'You are already in the selected company.',
+                                            snackPosition: SnackPosition.TOP,
+                                            backgroundColor: Colors.orange,
+                                            colorText: Colors.white,
+                                            duration: const Duration(seconds: 2),
+                                          );
+                                        } else {
+                                          Navigator.of(context).pop();
+                                          switchCompanyByUserId(context,
+                                              userID: selectedUserId.toString());
+                                        }
                                       }
                                     : null,
                                 style: ElevatedButton.styleFrom(
@@ -332,6 +354,12 @@ class SwitchCompanyController extends GetxController {
                   var controller = Get.put(LoginController());
                   controller.logout(
                       isNavToLogin: false, email: email, password: password);
+
+                  var homeController = Get.find<HomeController>();
+                  if(!homeController.isPunchIn.value){
+                    homeController.handlePunchInOut(context);
+                  }
+
 
                   // controller.loginApi(Get.context!,
                   //     email: email, password: password);

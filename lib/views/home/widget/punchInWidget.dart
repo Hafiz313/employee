@@ -284,9 +284,9 @@ class PunchInWidget extends StatelessWidget {
           SizedBox(width: context.percentWidth * 2),
           timeCard(context,
               time: _formatTime(controller.minutes.value), title: Lang.minutes),
-          // SizedBox(width: context.percentWidth * 2),
-          // timeCard(context,
-          //     time: _formatTime(controller.seconds.value), title: Lang.seconds),
+          SizedBox(width: context.percentWidth * 2),
+          timeCard(context,
+              time: _formatTime(controller.seconds.value), title: Lang.seconds),
         ],
       ),
     );

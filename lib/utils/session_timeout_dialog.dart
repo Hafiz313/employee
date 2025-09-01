@@ -21,7 +21,7 @@ class SessionTimeoutDialog {
             ),
             title: Column(
               children: [
-                Icon(
+                const Icon(
                   Icons.timer_off,
                   color: AppColors.blue,
                   size: 50,

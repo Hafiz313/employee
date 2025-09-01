@@ -96,20 +96,25 @@ class DrawerMenuItems extends StatelessWidget {
         GetBuilder<SwitchCompanyController>(
           init: SwitchCompanyController(),
           builder: (controller) {
-            return DrawerMenuItem(
-              icon: controller.isLoading.value
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Image.asset(AppAssets.arrowSwitchIcon),
-              title: 'Switch Company',
-              enabled: !controller.isLoading.value,
-              onTap: () {
-                controller.getCompanyList(context);
-              },
-            );
+            return Obx(() {
+              if (controller.companyList.value!.result!.length < 2) {
+                return const SizedBox.shrink();
+              }
+              return DrawerMenuItem(
+                icon: controller.isLoading.value
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Image.asset(AppAssets.arrowSwitchIcon),
+                title: 'Switch Company',
+                enabled: !controller.isLoading.value,
+                onTap: () {
+                  controller.getCompanyList(context);
+                },
+              );
+            });
           },
         ),
       ],

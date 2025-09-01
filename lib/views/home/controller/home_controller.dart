@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:employee/consts/lang.dart';
 import 'package:employee/core/models/response/DashBoardModel.dart';
+import 'package:employee/views/home/controller/switch_company_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
@@ -20,7 +21,7 @@ import '../widget/punchInWidget.dart';
 import '../widget/punchInWidget.dart' show SwitchJobConfirmDialog;
 
 class HomeController extends GetxController {
-  late Timer timer;
+  Timer? timer;
   RxInt hours = 0.obs;
   RxInt minutes = 0.obs;
   RxInt seconds = 0.obs;
@@ -50,6 +51,12 @@ class HomeController extends GetxController {
 
   Future<void> delayFunction() async {
     await Future.delayed(const Duration(seconds: 1));
+    try {
+      final switchController = Get.put(SwitchCompanyController());
+      switchController.getCompanyList(Get.context!,isShowDialog: false);
+    } catch (e) {
+      debugPrint('Error checking company count: $e');
+    }
     getJobEmp(Get.context!);
   }
 
@@ -118,7 +125,9 @@ class HomeController extends GetxController {
       }
 
     } else {
+
       // Single job: always punch in/out with jobId '0'
+      punchInOrOut(context, jobId: '0');
 
     }
   }
@@ -140,7 +149,6 @@ class HomeController extends GetxController {
         StorageService().getData(StorageConsts.kCompanyId).toString();
     String tenId = StorageService().getData(StorageConsts.kTenantId).toString();
     var url = "";
-    // "${Apis.getDashboardApi}?empId=$empId&compId=${compId}&jobId=${jobId}&tenantId=${tenId}";
 
     if (jobId.toString() == "null") {
       url =
@@ -159,17 +167,14 @@ class HomeController extends GetxController {
         .then(
       (res) async {
         if (!isNullString(res)) {
-          debugPrint("======getDashboard res:${res}=========");
-          // Parse the JSON string to Map<String, dynamic>
           final Map<String, dynamic> jsonData = jsonDecode(res);
           final dashboardModelData = DashBoardModel.fromJson(jsonData);
-
-          // Store the dashboard model in a variable (you can add this to your controller)
           dashboardModel.value = dashboardModelData;
 
           try {
             debugPrint(
-                "======getDashboard  dashboardModel.value:${dashboardModel.value.result!.todayActivities![dashboardModel.value.result!.todayActivities!.length - 1].empAttendencePunchType}=========");
+                "======getDashboard  dashboardModel.value:${
+                dashboardModel.value.result!.todayActivities!.length }=========");
             if (dashboardModel
                     .value
                     .result!
@@ -179,6 +184,19 @@ class HomeController extends GetxController {
                     .empAttendencePunchType ==
                 "PunchIn") {
               isPunchIn.value = false;
+
+              String punchInTime = dashboardModel
+                  .value
+                  .result!
+                  .todayActivities![
+              dashboardModel.value.result!.todayActivities!.length - 1]
+                  .date ?? '';
+
+              debugPrint("======time:${punchInTime}=========");
+
+              // Start timer from punch-in time
+              startTimerFromPunchIn(punchInTime);
+
             }
           } catch (e) {}
           EasyLoading.dismiss();
@@ -275,6 +293,23 @@ class HomeController extends GetxController {
     );
   }
 
+  void startTimerFromPunchIn(String punchInTimeString) {
+    try {
+      DateTime punchInTime = DateTime.parse(punchInTimeString);
+      DateTime now = DateTime.now();
+      Duration elapsed = now.difference(punchInTime);
+      
+      hours.value = elapsed.inHours;
+      minutes.value = elapsed.inMinutes % 60;
+      seconds.value = elapsed.inSeconds % 60;
+      
+      startTimer();
+    } catch (e) {
+      debugPrint('Error parsing punch-in time: $e');
+      startTimer();
+    }
+  }
+
   Future<void> punchInOrOut(BuildContext context,
       {required String jobId}) async {
     // loadingPunchIn.value = true;
@@ -306,9 +341,10 @@ class HomeController extends GetxController {
           getDashboard(context, jobId: '${selectedJob.value.id}');
           isPunchIn.value = !isPunchIn.value;
           if (isPunchIn.value) {
-            timer.cancel();
+            timer?.cancel();
           } else {
-            // getDashboard(context);
+           startTimer();
+            // getDashboard(context, jobId: '${selectedJob.value.id}');
           }
         } else {
           await CustomDialog(
@@ -325,7 +361,7 @@ class HomeController extends GetxController {
       seconds.value++;
       if (seconds.value == 60) {
         seconds.value = 0;
-        minutes++;
+        minutes.value++;
       }
       if (minutes.value == 60) {
         minutes.value = 0;
@@ -335,7 +371,7 @@ class HomeController extends GetxController {
   }
 
   void pauseTimer() {
-    timer.cancel();
+    timer?.cancel();
   }
 
   @override

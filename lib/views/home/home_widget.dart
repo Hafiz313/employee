@@ -502,7 +502,7 @@ Widget iconsItems(BuildContext context,
           ),
           SvgPicture.asset(
             svgRef,
-            width: context.percentWidth * 8,
+            width: context.percentWidth * 7.5,
             color: AppColors.white,
           ),
           SizedBox(
