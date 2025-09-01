@@ -110,10 +110,16 @@ class HomeController extends GetxController {
   Future<void> handlePunchInOut(BuildContext context) async {
     if (isMultiJob.value) {
       // Always show job selection dialog for both Punch In and Punch Out
-      await getJobDialog(context);
+
+      if(isPunchIn.value ){
+        await getJobDialog(context);
+      }else{
+        punchInOrOut(context, jobId: '0');
+      }
+
     } else {
       // Single job: always punch in/out with jobId '0'
-      punchInOrOut(context, jobId: '0');
+
     }
   }
 
@@ -290,8 +296,6 @@ class HomeController extends GetxController {
       "isCheckOut": true,
       "break": 0,
       "duration": 0,
-      // "jobId": jobId == 0 ? null : jobId,
-      // "id": null
     });
 
     await helper.postApiData(showSuccess: false, showLoader: true).then(

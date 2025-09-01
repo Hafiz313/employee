@@ -1,3 +1,4 @@
+import 'package:employee/utils/percentage_size_ext.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -70,55 +71,50 @@ class _PunchInDialogState extends State<PunchInDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        // padding: const EdgeInsets.symmetric(
-                        //     vertical: 3, horizontal: 2),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.white),
-                      ),
+                      // padding: const EdgeInsets.symmetric(
+                      //     vertical: 3, horizontal: 2),
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      "Cancel",
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.white),
                     ),
                   ),
                 ),
+                SizedBox(width: context.percentWidth * 2,),
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        // padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      onPressed: () {
-                        final selectedJob =
-                            widget.jobs.firstWhereOrNull((job) => job.selected);
-                        if (selectedJob != null) {
-                          // Close the dialog and return the selected job
-                          // The controller will handle the punch action
-                          Navigator.pop(context, selectedJob);
-                        }
-                      },
-                      child: const Text(
-                        'Confirm',
-                        style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.white),
-                      ),
+                      // padding: const EdgeInsets.symmetric(vertical: 2),
+                    ),
+                    onPressed: () {
+                      final selectedJob =
+                          widget.jobs.firstWhereOrNull((job) => job.selected);
+                      if (selectedJob != null) {
+                        // Close the dialog and return the selected job
+                        // The controller will handle the punch action
+                        Navigator.pop(context, selectedJob);
+                      }
+                    },
+                    child: const Text(
+                      'Confirm',
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.white),
                     ),
                   ),
                 ),
@@ -135,11 +131,20 @@ class _PunchInDialogState extends State<PunchInDialog> {
     return InkWell(
       onTap: () async {
         if (!job.selected) {
-          final confirmed = await showDialog<bool>(
-            context: context,
-            builder: (context) => _SwitchJobConfirmDialog(),
-          );
-          if (confirmed == true) {
+          if (!controller.isPunchIn.value) {
+            final confirmed = await showDialog<bool>(
+              context: context,
+              builder: (context) => _SwitchJobConfirmDialog(job: job),
+            );
+            if (confirmed == true) {
+              setState(() {
+                for (final j in widget.jobs) {
+                  j.selected = false;
+                }
+                job.selected = true;
+              });
+            }
+          } else {
             setState(() {
               for (final j in widget.jobs) {
                 j.selected = false;
@@ -193,8 +198,14 @@ class _PunchInDialogState extends State<PunchInDialog> {
 }
 
 class _SwitchJobConfirmDialog extends StatelessWidget {
+  final GetJobResult job;
+  
+  const _SwitchJobConfirmDialog({required this.job});
+  
   @override
   Widget build(BuildContext context) {
+    var controller = Get.find<HomeController>();
+    
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       child: Padding(
@@ -202,8 +213,8 @@ class _SwitchJobConfirmDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Are you sure you want to\nswitch the job?',
+            const Text(
+              'Are you sure you want to\n switch the job?',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -249,8 +260,9 @@ class _SwitchJobConfirmDialog extends StatelessWidget {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 10),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.of(context).pop(true);
+                        await controller.punchInOrOut(context, jobId: '${job.id}');
                       },
                       child: const Text(
                         "Yes",

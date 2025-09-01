@@ -208,6 +208,7 @@ class PunchInWidget extends StatelessWidget {
             backgroundColor: controller.isPunchIn.value
                 ? AppColors.green
                 : AppColors.redColor,
+
             onPressed: () {
               // Use the new controller method for handling punch in/out
               controller.handlePunchInOut(context);
