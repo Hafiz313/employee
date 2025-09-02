@@ -263,6 +263,7 @@ class _SwitchJobConfirmDialog extends StatelessWidget {
                       onPressed: () async {
                         Navigator.of(context).pop(true);
                         await controller.punchInOrOut(context, jobId: '${job.id}');
+
                       },
                       child: const Text(
                         "Yes",

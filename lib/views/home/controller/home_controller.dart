@@ -197,6 +197,8 @@ class HomeController extends GetxController {
               // Start timer from punch-in time
               startTimerFromPunchIn(punchInTime);
 
+            }else{
+              isPunchIn.value = true;
             }
           } catch (e) {}
           EasyLoading.dismiss();

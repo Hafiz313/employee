@@ -285,8 +285,8 @@ class PunchInWidget extends StatelessWidget {
           timeCard(context,
               time: _formatTime(controller.minutes.value), title: Lang.minutes),
           SizedBox(width: context.percentWidth * 2),
-          timeCard(context,
-              time: _formatTime(controller.seconds.value), title: Lang.seconds),
+          // timeCard(context,
+          //     time: _formatTime(controller.seconds.value), title: Lang.seconds),
         ],
       ),
     );
@@ -318,7 +318,7 @@ class SwitchJobConfirmDialog extends StatelessWidget {
             const Text(
               'Are you sure you want to\nswitch the job?',
               style: TextStyle(
-                fontSize: 28,
+                fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
               ),
